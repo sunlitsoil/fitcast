@@ -141,10 +141,13 @@ class PleosSignals(context: Context) {
 
         navi.initialize({ navi.addListener(naviListener) }, { warn("navi init", it) })
 
-        if (location.isSupported()) {
-            location.initialize()
-            location.registerFusedLocationCallback(locationListener)
-        }
+        // 위치 권한이 아직 없으면 속도 없이 돌고, 권한을 받은 뒤 다시 시작할 때 연결한다
+        runCatching {
+            if (location.isSupported()) {
+                location.initialize()
+                location.registerFusedLocationCallback(locationListener)
+            }
+        }.onFailure { warn("location", it) }
     }
 
     fun stop() {

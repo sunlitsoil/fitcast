@@ -146,6 +146,13 @@ class MainActivity : Activity() {
         engine = FitCastEngine(SampleBriefing.items, sink)
         signals.start()
         main.post(tick)
+        val missing = arrayOf(FUSED_LOCATION, android.Manifest.permission.RECORD_AUDIO)
+            .filter { checkSelfPermission(it) != android.content.pm.PackageManager.PERMISSION_GRANTED }
+        if (missing.isNotEmpty()) requestPermissions(missing.toTypedArray(), 1)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (FUSED_LOCATION in permissions) { signals.stop(); signals = PleosSignals(this); signals.start() }
     }
 
     override fun onDestroy() {
@@ -373,5 +380,6 @@ class MainActivity : Activity() {
     private companion object {
         const val TAG = "FitCast"
         const val FOCUS_WAIT = "오디오 포커스 대기"
+        const val FUSED_LOCATION = "pleos.car.permission.FUSED_LOCATION"
     }
 }
