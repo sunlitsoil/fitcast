@@ -15,6 +15,21 @@ android {
         versionName = "0.1.0"
     }
 
+    // release 서명: 키 저장소와 비밀번호 파일은 저장소 밖에 두고 환경 변수로만 넘긴다
+    val ks = System.getenv("FITCAST_KEYSTORE")
+    val ksPass = System.getenv("FITCAST_KEYSTORE_PASS_FILE")?.let { file(it).readText().trim() }
+    signingConfigs {
+        if (ks != null && ksPass != null) create("release") {
+            storeFile = file(ks); storePassword = ksPass; keyAlias = "fitcast"; keyPassword = ksPass
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+            signingConfigs.findByName("release")?.let { signingConfig = it }
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

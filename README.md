@@ -2,7 +2,10 @@
 
 도착 시각에 맞춰 끝나고, 운전이 바빠지는 순간에는 스스로 멈추는 차량용 AI 음성 브리핑.
 
-현대자동차그룹 차량용 앱 개발 공모전(Pleos Connect) 출품 준비용 시제품이다. 아직 에뮬레이터·실차에서 구동 확인 전이다.
+현대자동차그룹 차량용 앱 개발 공모전(Pleos Connect) 출품작의 시제품이다. Pleos Connect Emulator 2.1.0에서 실행해 확인했고, 실차에서는 아직 돌려 보지 않았다.
+
+- release APK: [`apk/FitCast_핏캐스트_release.apk`](apk/FitCast_핏캐스트_release.apk)
+- 시연 영상: [Releases v0.1.0](https://github.com/sunlitsoil/fitcast/releases/tag/v0.1.0)의 `fitcast-demo.mp4`(에뮬레이터 화면과 TTS 소리 녹화)
 
 ## 무엇을 하나
 
@@ -32,17 +35,20 @@ docs/  시뮬레이션 결과
 # 앱 빌드(local.properties에 sdk.dir 필요)
 ./gradlew :app:assembleDebug
 # → app/build/outputs/apk/debug/app-debug.apk
+# release 빌드: 서명 키는 저장소 밖에 두고 환경 변수로 넘긴다(별칭 fitcast)
+FITCAST_KEYSTORE=키저장소.jks FITCAST_KEYSTORE_PASS_FILE=비밀번호파일 ./gradlew :app:assembleRelease
+# 설치: adb install apk/FitCast_핏캐스트_release.apk
 ```
 
 ## 테스트 환경 및 필요한 설정
 
-- 빌드·테스트: macOS(Apple Silicon), JDK 17, Gradle 8.9, AGP 8.5.2, Kotlin 1.9.25. `:core:test` 18개 통과, `:app:assembleDebug` 빌드 성공.
+- 빌드·테스트: macOS(Apple Silicon), JDK 17, Gradle 8.9, AGP 8.5.2, Kotlin 1.9.25. `:core:test` 18개 통과, `:app:assembleDebug`·`:app:assembleRelease` 빌드 성공.
 - 에뮬레이터: Pleos Connect Emulator 2.1.0(arm64, API 34)에서 실행해 확인했다(2026-11-08).
   - SDK 5종 서비스 연결
   - 온디바이스 TTS 문장 단위 낭독(22문장 실측 공백 제외 초당 5.5자)
   - Virtual Console로 기어·방향지시등·조향각·와이퍼를 바꿀 때의 단계 변화와 같은 문장 재시작
 - 아직 확인하지 않은 것: NaviHelper 실경로 연동(시연은 5분 합성 경로 위에 실제 차량 신호를 덮어 씀), 실제 내비 안내·Gleo와 겹칠 때의 오디오 포커스 동작, STT 음성 명령 인식.
-- 시연: 앱의 시연 주행 버튼을 누르면 5분 합성 경로를 실제 시간으로 흘린다. `tools/demo-drive.sh 출력.mp4`는 Virtual Console(HTTP 8088, `adb forward`)로 차량 신호를 바꾸며 화면을 녹화한다.
+- 시연: 앱의 시연 주행 버튼을 누르면 5분 합성 경로를 실제 시간으로 흘린다. `tools/demo-drive.sh 출력.webm`은 Virtual Console(HTTP 8088, `adb forward`)로 차량 신호를 바꾸며 에뮬레이터 화면과 소리를 녹화한다(`.mp4`로 주면 기기 화면만 녹화).
 - 에뮬레이터 설치: Android Studio SDK Manager에 Pleos Connect System Image 사이트를 추가하고 Automotive AVD를 만든다(공식 문서의 Pleos Connect Emulator 설치 및 실행). 에뮬레이터가 GPU 오류로 멈추면 `-no-window`로 띄우면 안정적이었다.
 - 퍼미션: 조회용 `CAR_LIGHTS`·`CAR_DRIVE`·`CAR_WINDOWS`, `NAVI_ROUTE`, `FUSED_LOCATION`, `TTS_SERVICE`·`STT_SERVICE`. 차량 제어 퍼미션은 쓰지 않는다. Pleos App Market 승인 범위는 별도 확인이 필요하다.
 - 서버 기반 TTS·STT(HYBRID·SERVER 모드)는 Pleos Playground 앱 등록이 필요해 시제품은 ON_DEVICE 모드만 쓴다.
@@ -50,8 +56,9 @@ docs/  시뮬레이션 결과
 
 ## APK
 
-- 현재: 디버그 빌드 `app/build/outputs/apk/debug/app-debug.apk`(저장소에는 넣지 않음).
-- 제출용: 서명한 release 빌드를 `apk/팀명_앱이름_release.apk`로 넣는다(공모전 안내).
+- 위치: `apk/FitCast_핏캐스트_release.apk`(서명한 release 빌드, versionName 0.1.0, minSdk 28·targetSdk 34).
+- 공모전 안내의 파일명은 `팀명_앱이름_release.apk`이다. 개인 참가는 팀명 자리가 성명이라, 공개 저장소에 실명이 남지 않도록 앱 영문명을 썼다.
+- 처음 실행하면 위치·마이크 권한을 묻는다.
 
 ## 시뮬레이션 요약
 

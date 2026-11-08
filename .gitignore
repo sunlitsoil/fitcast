@@ -4,3 +4,7 @@ local.properties
 *.keystore
 *.jks
 demo/raw-*
+demo/*.mp4
+demo/*.webm
+demo/*-logcat.txt
+submission/

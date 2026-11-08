@@ -1,6 +1,6 @@
 #!/bin/zsh
 # 시연 영상용: Pleos Connect Emulator의 Virtual Console(HTTP :8088, adb forward)로 실제 차량 신호를 바꾸면서
-# 앱의 「시연 주행」(5분 합성 경로)을 돌리고 화면을 녹화한다. 사용: tools/demo-drive.sh 출력.mp4
+# 앱의 「시연 주행」(5분 합성 경로)을 돌리고 화면을 녹화한다. 사용: tools/demo-drive.sh 출력.mp4|출력.webm(소리 포함)
 set -u
 ADB=${ADB:-$HOME/Library/Android/sdk/platform-tools/adb}
 V=http://127.0.0.1:8088
@@ -14,7 +14,9 @@ curl -s "$V/vehicle/gear" | grep -q '"value":"Drive"' || { echo "기어 D 전환
  put "turn-signal?mode=Off"; put "body?front_wiper=Off"; put "controls?speed=0&accelerator=0&brake=30&steering=0"
 $ADB shell am force-stop ai.fitcast.app; $ADB logcat -c
 $ADB shell am start -n ai.fitcast.app/.MainActivity >/dev/null; sleep 5
-$ADB shell screenrecord --time-limit 0 --bit-rate 8000000 /sdcard/fitcast-demo.mp4 & REC=$!
+# 출력이 .webm이면 에뮬레이터 자체 녹화(TTS 소리 포함), 아니면 기기 screenrecord(소리 없음)
+if [[ "$OUT" == *.webm ]]; then $ADB emu screenrecord start --time-limit 330 "${OUT:A}" >/dev/null; REC=
+else $ADB shell screenrecord --time-limit 0 --bit-rate 8000000 /sdcard/fitcast-demo.mp4 & REC=$!; fi
 sleep 1
 $ADB shell input tap 2360 1244   # 시연 주행(화면 오른쪽 아래)
 T0=$(date +%s)
@@ -47,8 +49,8 @@ at 281; put "body?front_wiper=Off"; put "controls?speed=30&accelerator=20&brake=
 at 300; put "controls?speed=0&accelerator=0&brake=50&steering=0"
 at 302; put "gear?gear=Park"
 at 312
-$ADB shell pkill -INT screenrecord; sleep 3; kill $REC 2>/dev/null
-$ADB pull /sdcard/fitcast-demo.mp4 "$OUT" >/dev/null
+if [[ -z "$REC" ]]; then $ADB emu screenrecord stop >/dev/null; sleep 3
+else $ADB shell pkill -INT screenrecord; sleep 3; kill $REC 2>/dev/null; $ADB pull /sdcard/fitcast-demo.mp4 "$OUT" >/dev/null; fi
 $ADB logcat -d > "${OUT%.mp4}-logcat.txt"
 kill $HB
 echo "saved $OUT"
