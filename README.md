@@ -10,7 +10,7 @@
 - **멈춤과 재개**: HIGH면 읽던 문장을 즉시 멈추고, 다시 LOW가 2.5초 이어지면 그 문장을 처음부터 다시 읽는다. MEDIUM이면 읽던 문장만 마저 읽는다.
 - **끝까지 못 읽을 문장은 시작하지 않기**: 지금 속도로 다음 HIGH 구간까지 남은 시간을 계산해, 그 안에 끝나지 않는 문장은 미룬다.
 - **도착 맞춤 분량**: 남은 시간 × 실제로 들을 수 있었던 비율로 예산을 잡고, 항목마다 헤드라인·요약·전체 중 얼마나 읽을지 우선순위 기준으로 다시 배정한다. 재탐색·정체로 남은 시간이 바뀌면 다시 계산한다.
-- **음성 조작**: 「다음」「자세히」「저장」(SpeechToText SDK, 온디바이스). 못 들은 항목과 저장한 항목은 주차(P단) 후 화면 목록으로 넘긴다.
+- **음성 조작**: "다음", "자세히", "저장"(SpeechToText SDK, 온디바이스). 못 들은 항목과 저장한 항목은 주차(P단) 후 화면 목록으로 넘긴다.
 - **음성 출력**: TextToSpeech SDK(온디바이스 모드).
 
 ## 구조
@@ -36,11 +36,17 @@ docs/  시뮬레이션 결과
 
 ## 테스트 환경 및 필요한 설정
 
-- 시제품 확인 범위: Ubuntu, JDK 17.0.21, Gradle 8.9, AGP 8.5.2, Kotlin 1.9.25에서 `:core:test` 15개 통과, `:app:assembleDebug` 빌드 성공.
-- 미확인: Pleos Connect Emulator 2.1.0(Android Studio AVD, API 34)에서의 구동, Vehicle Service·Navi Service 실제 콜백 값. `DrivingState.duration` 단위(초 가정)도 에뮬레이터에서 확인해야 한다.
-- 에뮬레이터: Android Studio SDK Manager에 Pleos Connect System Image 사이트를 추가하고 Automotive AVD를 만든다(공식 문서 「Pleos Connect Emulator 설치 및 실행」).
+- 빌드·테스트: macOS(Apple Silicon), JDK 17, Gradle 8.9, AGP 8.5.2, Kotlin 1.9.25. `:core:test` 18개 통과, `:app:assembleDebug` 빌드 성공.
+- 에뮬레이터: Pleos Connect Emulator 2.1.0(arm64, API 34)에서 실행해 확인했다(2026-11-08).
+  - SDK 5종 서비스 연결
+  - 온디바이스 TTS 문장 단위 낭독(22문장 실측 공백 제외 초당 5.5자)
+  - Virtual Console로 기어·방향지시등·조향각·와이퍼를 바꿀 때의 단계 변화와 같은 문장 재시작
+- 아직 확인하지 않은 것: NaviHelper 실경로 연동(시연은 5분 합성 경로 위에 실제 차량 신호를 덮어 씀), 실제 내비 안내·Gleo와 겹칠 때의 오디오 포커스 동작, STT 음성 명령 인식.
+- 시연: 앱의 시연 주행 버튼을 누르면 5분 합성 경로를 실제 시간으로 흘린다. `tools/demo-drive.sh 출력.mp4`는 Virtual Console(HTTP 8088, `adb forward`)로 차량 신호를 바꾸며 화면을 녹화한다.
+- 에뮬레이터 설치: Android Studio SDK Manager에 Pleos Connect System Image 사이트를 추가하고 Automotive AVD를 만든다(공식 문서의 Pleos Connect Emulator 설치 및 실행). 에뮬레이터가 GPU 오류로 멈추면 `-no-window`로 띄우면 안정적이었다.
 - 퍼미션: 조회용 `CAR_LIGHTS`·`CAR_DRIVE`·`CAR_WINDOWS`, `NAVI_ROUTE`, `FUSED_LOCATION`, `TTS_SERVICE`·`STT_SERVICE`. 차량 제어 퍼미션은 쓰지 않는다. Pleos App Market 승인 범위는 별도 확인이 필요하다.
 - 서버 기반 TTS·STT(HYBRID·SERVER 모드)는 Pleos Playground 앱 등록이 필요해 시제품은 ON_DEVICE 모드만 쓴다.
+- 글꼴: Pretendard(SIL Open Font License 1.1, `licenses/Pretendard-OFL.txt`).
 
 ## APK
 
