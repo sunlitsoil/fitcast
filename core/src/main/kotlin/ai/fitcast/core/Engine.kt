@@ -105,7 +105,7 @@ class FitCastEngine(
                 }
             }
             // MEDIUM: 읽던 문장은 마저 읽고, 새 문장은 HIGH 구간 전에 끝낼 수 있을 때만 시작
-            Load.MEDIUM -> if (speaking == null && s.tMs - lastHighMs >= resumeHoldMs) startNext(s, marginSec = 3.0, needForecast = true)
+            Load.MEDIUM -> if (speaking == null && s.tMs - lastHighMs >= resumeHoldMs) startNext(s, marginSec = 1.0, needForecast = true)
             Load.LOW, Load.PARKED -> {
                 if (speaking == null && s.tMs - lastHighMs >= resumeHoldMs) startNext(s, marginSec = 1.0, needForecast = false)
             }

@@ -86,6 +86,18 @@ class EngineTest {
         assertTrue(covered(fit) >= covered(safe), "fit ${covered(fit)} safe ${covered(safe)}")
     }
 
+    @Test fun randomRoutesKeepSafetyAndFewerCuts() {
+        val items = SampleBriefing.items
+        val rs = robustness(items, 1L..60L)
+        // 어느 경로에서도 운전 부담 큰 순간에는 말하지 않는다
+        assertTrue(rs.all { it.third.speechInHighSec == 0 })
+        // 끊김은 평균적으로 단순 멈춤의 절반 아래, 가중 청취 가치는 평균 3% 안
+        val cuts = { pick: (Triple<RunResult, RunResult, RunResult>) -> RunResult -> rs.sumOf { pick(it).interruptions }.toDouble() / rs.size }
+        assertTrue(cuts { it.third } < 0.6 * cuts { it.second }, "C ${cuts { it.third }} B ${cuts { it.second }}")
+        val v = { pick: (Triple<RunResult, RunResult, RunResult>) -> RunResult -> rs.sumOf { pick(it).value(items) } / rs.size }
+        assertTrue(v { it.third } >= 0.97 * v { it.second }, "C ${v { it.third }} B ${v { it.second }}")
+    }
+
     @Test fun interruptedSentenceIsRepeated() {
         val clock = SpeechClock()
         val spoken = mutableListOf<String>()

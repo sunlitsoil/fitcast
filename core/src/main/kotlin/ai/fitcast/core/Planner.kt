@@ -24,7 +24,7 @@ data class Plan(val entries: List<PlanEntry>, val budgetSec: Double, val usedSec
  * 들을 수 있는 비율은 지금까지 주행에서 운전 부담이 낮았던 시간의 비율로 계속 갱신한다.
  * 우선순위×깊이 가중치의 가치를 초당 가치가 큰 순서로 한 단계씩 올리는 탐욕 배정이다.
  */
-class Planner(private val clock: SpeechClock, private val arrivalMarginSec: Double = 30.0) {
+class Planner(private val clock: SpeechClock, private val arrivalMarginSec: Double = 10.0) {
 
     fun budget(remainSec: Int, playableRatio: Double): Double =
         max(0.0, remainSec * playableRatio - arrivalMarginSec)
