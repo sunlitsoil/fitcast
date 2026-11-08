@@ -74,7 +74,8 @@ class FitCastEngine(
         else (0.5 * initialPlayableRatio + 0.5 * playableMs.toDouble() / drivingMs)
 
     override fun onTick(s: DriveSnapshot) {
-        if (arrived) return
+        // 도착 뒤에도 화면이 주차 여부를 따라가도록 판단만 갱신한다(말은 하지 않는다)
+        if (arrived) { lastVerdict = estimator.estimate(s); return }
         val dt = lastTickMs?.let { s.tMs - it } ?: 0L
         lastTickMs = s.tMs
 

@@ -92,6 +92,8 @@ fun main(args: Array<String>) {
     sb.appendLine("합성 출근 시나리오 ${CommuteScenario.arriveSec / 60}분(5분 시점 재탐색으로 2분 단축, 7∼9분 우천, 도시고속도로 IC 3곳, 신호 대기 4회). 브리핑 ${items.size}개 항목, 전부 읽으면 약 ${totalSec.toInt()}초.")
     sb.appendLine("실제 주행 기록·실제 TTS가 아니라 1초 단위 시간 계산 모의 실행이다. 말하기 속도 ${clock.charsPerSec}자/초 가정. 세 방식 모두 같은 부담 추정 규칙으로 채점했고, A·B는 우선순위 순서로 읽는다.")
     sb.appendLine()
+    sb.appendLine("우선순위 가중 청취 가치 = 항목마다 (우선순위 1∼5) × (끝까지 들은 문장으로 정한 깊이 가중치)의 합. 가중치는 전체 문장 1.0, 절반 이상 0.8, 첫 문장만 0.5, 못 들음 0이다. 18개 항목의 우선순위 합이 ${items.sumOf { it.priority }}이라 최대값도 ${items.sumOf { it.priority }}이다. 중간에 끊긴 문장은 들은 것으로 세지 않는다.")
+    sb.appendLine()
     sb.appendLine("| 지표 | " + runs.joinToString(" | ") { it.name } + " |")
     sb.appendLine("|---|" + runs.joinToString("|") { "---" } + "|")
     fun row(label: String, f: (RunResult) -> String) = sb.appendLine("| $label | " + runs.joinToString(" | ") { f(it) } + " |")

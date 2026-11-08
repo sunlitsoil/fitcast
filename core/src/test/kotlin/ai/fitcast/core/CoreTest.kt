@@ -118,6 +118,15 @@ class EngineTest {
         assertEquals(first, spoken.last())
     }
 
+    @Test fun parkingAfterArrivalShowsParked() {
+        val sink = object : SpeechSink { override fun speak(utteranceId: String, text: String) {}; override fun stop() {} }
+        val engine = FitCastEngine(SampleBriefing.items, sink)
+        engine.onTick(DriveSnapshot(0, speedKmh = 30.0, remainSec = 60))
+        engine.onTick(DriveSnapshot(1_000, speedKmh = 5.0, nextManeuverDistanceM = 10.0, remainSec = 0, arrived = true))
+        engine.onTick(DriveSnapshot(3_000, gear = GearState.PARK, arrived = true))
+        assertEquals(Load.PARKED, engine.lastVerdict?.load)
+    }
+
     @Test fun interruptedSentenceIsRepeated() {
         val clock = SpeechClock()
         val spoken = mutableListOf<String>()
