@@ -16,7 +16,7 @@ $ADB shell am force-stop ai.fitcast.app; $ADB logcat -c
 $ADB shell am start -n ai.fitcast.app/.MainActivity >/dev/null; sleep 5
 $ADB shell screenrecord --time-limit 0 --bit-rate 8000000 /sdcard/fitcast-demo.mp4 & REC=$!
 sleep 1
-$ADB shell input tap 2324 549   # 시연 주행
+$ADB shell input tap 2360 1244   # 시연 주행(화면 오른쪽 아래)
 T0=$(date +%s)
 at(){ while (( $(date +%s) - T0 < $1 )); do sleep 0.2; done; }
 # 낭독 중일 때 실제 조향을 넣어 멈춤→같은 문장 재시작을 화면에 남긴다(최대 $2초 대기)
@@ -37,7 +37,7 @@ at 140; :
 at 146; :
 at 175; put "controls?speed=40&accelerator=20&brake=0&steering=0"
 at 182; steer_while_speaking 15
-at 200; $ADB shell input tap 1903 549   # 저장(말로 「저장」과 같은 동작)
+at 200; $ADB shell input tap 2232 1154   # 나중에 보기(말로 「저장」과 같은 동작)
 at 240; put "body?front_wiper=Low"
 at 244; :
 at 247; put "controls?speed=20&accelerator=0&brake=0&steering=90"

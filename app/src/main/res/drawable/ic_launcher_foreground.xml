@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 도착 맞춤 막대를 줄인 표식: 지금 읽는 항목(초록), 남은 계획(회색), 도착 지점(세로선) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#4CC38A" android:pathData="M30,49h14a3,3 0,0 1,3 3v4a3,3 0,0 1,-3 3h-14a5,5 0,0 1,0 -10z"/>
+    <path android:fillColor="#A1A8B3" android:pathData="M50,49h10a3,3 0,0 1,3 3v4a3,3 0,0 1,-3 3h-10a3,3 0,0 1,-3 -3v-4a3,3 0,0 1,3 -3z"/>
+    <path android:fillColor="#A1A8B3" android:pathData="M66,49h4a3,3 0,0 1,3 3v4a3,3 0,0 1,-3 3h-4a3,3 0,0 1,-3 -3v-4a3,3 0,0 1,3 -3z"/>
+    <path android:fillColor="#EDEFF3" android:pathData="M77,42h3v24h-3z"/>
+</vector>

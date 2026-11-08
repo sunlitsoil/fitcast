@@ -214,7 +214,10 @@ class FitCastEngine(
     val currentDepth: Depth? get() = current?.depth
     /** 멈춘 뒤 다시 읽을 문장(아직 시작하지 않은 다음 문장). */
     val pendingSentence: String? get() = current?.sentences()?.getOrNull(nextIdx)
+    /** 지금 항목에서 몇 번째 문장(0부터)과 전체 문장 수. 화면 표시용. */
+    val sentencePosition: Pair<Int, Int>? get() = current?.let { nextIdx to it.sentences().size }
     val currentTitle: String? get() = current?.item?.title
+    val currentEntry: PlanEntry? get() = current
 
     private fun log(t: Long, kind: String, detail: String) { events += EngineEvent(t, kind, detail) }
 }
