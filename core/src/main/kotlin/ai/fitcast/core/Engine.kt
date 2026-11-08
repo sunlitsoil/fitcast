@@ -46,6 +46,7 @@ class FitCastEngine(
     private val planner: Planner = Planner(clock),
     private val resumeHoldMs: Long = 2_500,
     private val initialPlayableRatio: Double = 0.6,
+    private val fallbackRemainSec: Int = 900,
 ) : BriefingPlayer {
     override val events = mutableListOf<EngineEvent>()
 
@@ -65,6 +66,9 @@ class FitCastEngine(
     var lastVerdict: LoadVerdict? = null
         private set
 
+    /** 오디오 포커스를 잠시 잃은 이유(예: 「내비 안내 음성」). null이면 포커스를 갖고 있다. 앱의 AudioFocus 콜백이 넣는다. */
+    var audioHold: String? = null
+
     val playableRatio: Double
         get() = if (drivingMs < 60_000) initialPlayableRatio
         else (0.5 * initialPlayableRatio + 0.5 * playableMs.toDouble() / drivingMs)
@@ -81,7 +85,10 @@ class FitCastEngine(
             return
         }
 
-        val v = estimator.estimate(s)
+        val est = estimator.estimate(s)
+        // 내비 안내·Gleo 호출로 오디오 포커스를 잠시 잃으면 음량을 낮춰 겹쳐 말하지 않고, 운전 부담이 큰 순간과 똑같이 멈춘다
+        val hold = audioHold
+        val v = if (hold != null && est.load != Load.PARKED) LoadVerdict(Load.HIGH, listOf(hold) + est.reasons) else est
         lastVerdict = v
         if (v.load != lastLoad) {
             log(s.tMs, "부담 ${v.load}", v.reasons.joinToString(", "))
@@ -121,7 +128,8 @@ class FitCastEngine(
     }
 
     private fun maybeReplan(s: DriveSnapshot) {
-        val remain = s.remainSec ?: return
+        // 내비 경로가 없으면 한 번만 기본 시간(15분)으로 계획하고, 경로가 생기면 그때 다시 맞춘다
+        val remain = s.remainSec ?: if (lastPlanRemain == null) fallbackRemainSec else return
         val prev = lastPlanRemain
         val drift = if (prev == null) Int.MAX_VALUE else {
             // 시간이 흐른 만큼 줄어드는 건 정상이므로, 예상 감소분과의 차이만 본다
@@ -200,6 +208,11 @@ class FitCastEngine(
     }
 
     val savedForLater = mutableListOf<BriefItem>()
+    /** 화면 표시용: 지금 항목 다음에 읽을 계획. */
+    val upcoming: List<PlanEntry> get() = queue.toList()
+    val currentDepth: Depth? get() = current?.depth
+    /** 멈춘 뒤 다시 읽을 문장(아직 시작하지 않은 다음 문장). */
+    val pendingSentence: String? get() = current?.sentences()?.getOrNull(nextIdx)
     val currentTitle: String? get() = current?.item?.title
 
     private fun log(t: Long, kind: String, detail: String) { events += EngineEvent(t, kind, detail) }

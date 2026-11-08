@@ -142,3 +142,25 @@ val CommuteScenario: Commute = Commute(
     highway = 320 until 560,
     speedAfterHighway = 35.0,
 )
+
+/**
+ * 시연 영상용 5분 경로. 2분에 재탐색으로 도착이 1분 30초 당겨지고, 4∼4분 40초에 비가 온다.
+ * 앱의 「시연 주행」 버튼이 이 경로를 실제 시간으로 흘려보내고, 실제 차량 신호(콘솔에서 바꾼 방향지시등·기어·와이퍼)를 그 위에 덮어쓴다.
+ */
+val DemoRoute: Commute = Commute(
+    arriveSec = 300,
+    initialEtaSec = 390,
+    rerouteAtSec = 120,
+    maneuvers = listOf(
+        45 to ManeuverKind.SIMPLE_TURN,
+        105 to ManeuverKind.COMPLEX,
+        175 to ManeuverKind.COMPLEX,
+        250 to ManeuverKind.SIMPLE_TURN,
+        300 to ManeuverKind.ARRIVE,
+    ),
+    cautions = listOf(215 to CautionKind.CHILD_OR_ACCIDENT),
+    stops = listOf(12..32, 262..280),
+    laneChanges = listOf(140..145),
+    rain = 240..280,
+    highway = 105 until 175,
+)

@@ -98,6 +98,26 @@ class EngineTest {
         assertTrue(v { it.third } >= 0.97 * v { it.second }, "C ${v { it.third }} B ${v { it.second }}")
     }
 
+    @Test fun audioFocusLossPausesAndResumesSameSentence() {
+        val spoken = mutableListOf<String>()
+        var stops = 0
+        val sink = object : SpeechSink {
+            override fun speak(utteranceId: String, text: String) { spoken += utteranceId }
+            override fun stop() { stops++ }
+        }
+        val engine = FitCastEngine(SampleBriefing.items, sink)
+        engine.onTick(DriveSnapshot(0, speedKmh = 30.0, remainSec = 900))
+        val first = spoken.single()
+        engine.audioHold = "내비 안내 음성"
+        engine.onTick(DriveSnapshot(500, speedKmh = 30.0, remainSec = 900))
+        assertEquals(1, stops)
+        engine.onTick(DriveSnapshot(4_000, speedKmh = 30.0, remainSec = 896))
+        assertEquals(1, spoken.size) // 포커스를 되찾기 전에는 다시 말하지 않는다
+        engine.audioHold = null
+        engine.onTick(DriveSnapshot(7_000, speedKmh = 30.0, remainSec = 893))
+        assertEquals(first, spoken.last())
+    }
+
     @Test fun interruptedSentenceIsRepeated() {
         val clock = SpeechClock()
         val spoken = mutableListOf<String>()
